@@ -1,6 +1,7 @@
 ﻿using Library_Management_System.Data;
 using Library_Management_System.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Library_Management_System.Controllers
 {
@@ -15,6 +16,26 @@ namespace Library_Management_System.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        public IActionResult GetAllIssues()
+        {
+            var issues = _context.BookIssues
+        .Include(i => i.Book)
+        .Include(i => i.Student)
+        .Select(i => new
+        {
+            i.IssueId,
+            BookTitle = i.Book.Title,
+            StudentName = i.Student.Name,
+            i.IssueDate,
+            i.ReturnDate,
+            i.IsReturned
+        })
+        .ToList();
+
+            return Ok(issues);
+        }
+        
         [HttpPost("issue")]
         public IActionResult IssueBook(int bookId, int studentId)
         {
@@ -54,5 +75,6 @@ namespace Library_Management_System.Controllers
             _context.SaveChanges();
             return Ok("Book returned successfully");
         }
+
     }
 }
