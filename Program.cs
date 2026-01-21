@@ -18,6 +18,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.MapGet("/", () => "Server is running successfully!");
+
 app.MapControllers();
 
 app.Run();
