@@ -85,6 +85,11 @@ namespace Library_Management_System.Controllers
 
             // Increase stock after return
             var book = _context.Books.Find(issue.BookId);
+
+            if (book == null)
+            {
+                return BadRequest("Associated book not found");
+            }
             book.TotalStock++;
 
             _context.SaveChanges();
