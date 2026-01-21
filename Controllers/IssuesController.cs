@@ -16,6 +16,10 @@ namespace Library_Management_System.Controllers
             _context = context;
         }
 
+        // ===============================
+        // GET: api/Issues
+        // Purpose: Retrieve all issued books with related book and student details
+        // ===============================
         [HttpGet]
         public IActionResult GetAllIssues()
         {
@@ -35,7 +39,11 @@ namespace Library_Management_System.Controllers
 
             return Ok(issues);
         }
-        
+
+        // ===============================
+        // POST: api/Issues/issue
+        // Purpose: Issue a book to a student if stock is available
+        // ===============================
         [HttpPost("issue")]
         public IActionResult IssueBook(int bookId, int studentId)
         {
@@ -43,6 +51,7 @@ namespace Library_Management_System.Controllers
             if (book == null || book.TotalStock <= 0)
                 return BadRequest("Book not available");
 
+            // Reduce stock when book is issued
             book.TotalStock--;
 
             var issue = new BookIssue
@@ -59,6 +68,10 @@ namespace Library_Management_System.Controllers
             return Ok("Book issued successfully");
         }
 
+        // ===============================
+        // POST: api/Issues/return
+        // Purpose: Return an issued book and update stock
+        // ===============================
         [HttpPost("return")]
         public IActionResult ReturnBook(int issueId)
         {
@@ -66,9 +79,11 @@ namespace Library_Management_System.Controllers
             if (issue == null || issue.IsReturned)
                 return BadRequest("Invalid request");
 
+            // Mark book as returned
             issue.IsReturned = true;
             issue.ReturnDate = DateTime.Now;
 
+            // Increase stock after return
             var book = _context.Books.Find(issue.BookId);
             book.TotalStock++;
 

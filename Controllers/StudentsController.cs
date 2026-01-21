@@ -15,7 +15,10 @@ namespace Library_Management_System.Controllers
             _context = context;
         }
 
-        // GET: api/students
+        // ===============================
+        // GET: api/Students
+        // Purpose: Retrieve all students registered in the library system
+        // ===============================
         [HttpGet]
         public IActionResult GetStudents()
         {
@@ -23,7 +26,10 @@ namespace Library_Management_System.Controllers
             return Ok(students);
         }
 
-        // GET: api/students/5
+        // ===============================
+        // GET: api/Students/{id}
+        // Purpose: Retrieve a specific student by ID
+        // ===============================
         [HttpGet("{id}")]
         public IActionResult GetStudentById(int id)
         {
@@ -34,7 +40,10 @@ namespace Library_Management_System.Controllers
             return Ok(student);
         }
 
-        // POST: api/students
+        // ===============================
+        // POST: api/Students
+        // Purpose: Add a new student to the library system
+        // ===============================a
         [HttpPost]
         public IActionResult CreateStudent(Student student)
         {
@@ -43,7 +52,10 @@ namespace Library_Management_System.Controllers
             return Ok(student);
         }
 
-        // PUT: api/students/5
+        // ===============================
+        // PUT: api/Students/{id}
+        // Purpose: Update student details such as name and roll number
+        // ===============================
         [HttpPut("{id}")]
         public IActionResult UpdateStudent(int id, Student updatedStudent)
         {
@@ -58,7 +70,10 @@ namespace Library_Management_System.Controllers
             return Ok(student);
         }
 
-        // DELETE: api/students/5
+        // ===============================
+        // DELETE: api/Students/{id}
+        // Purpose: Remove a student from the library system
+        // ===============================
         [HttpDelete("{id}")]
         public IActionResult DeleteStudent(int id)
         {

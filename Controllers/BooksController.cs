@@ -15,14 +15,20 @@ namespace Library_Management_System.Controllers
             _context = context;
         }
 
+        // ===============================
         // GET: api/Books
+        // Purpose: Retrieve all books available in the library
+        // ===============================
         [HttpGet]
         public IActionResult GetBooks()
         {
             return Ok(_context.Books.ToList());
         }
 
+        // ===============================
         // POST: api/Books
+        // Purpose: Add a new book to the library inventory
+        // ===============================
         [HttpPost]
         public IActionResult AddBook(Book book)
         {
@@ -31,7 +37,10 @@ namespace Library_Management_System.Controllers
             return Ok(book);
         }
 
+        // ===============================
         // PUT: api/Books/{id}
+        // Purpose: Update book details such as title, author, and stock
+        // ===============================
         [HttpPut("{id}")]
         public IActionResult UpdateBook(int id, Book updatedBook)
         {
@@ -51,7 +60,10 @@ namespace Library_Management_System.Controllers
             return Ok(book);
         }
 
+        // ===============================
         // DELETE: api/Books/{id}
+        // Purpose: Remove a book from the library system
+        // ===============================
         [HttpDelete("{id}")]
         public IActionResult DeleteBook(int id)
         {
