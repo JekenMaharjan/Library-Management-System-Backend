@@ -20,7 +20,7 @@ namespace Library_Management_System.Models
 
         public bool IsReturned { get; set; }
 
-        public Book Book { get; set; }
-        public Student Student { get; set; }
+        public Book Book { get; set; } = null!;
+        public Student Student { get; set; } = null!;
     }
 }
