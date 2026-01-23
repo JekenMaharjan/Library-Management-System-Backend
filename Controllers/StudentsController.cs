@@ -1,6 +1,8 @@
-﻿using Library_Management_System.Data;
+﻿
+using Library_Management_System.Data;
 using Library_Management_System.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Library_Management_System.Controllers
 {
@@ -15,76 +17,91 @@ namespace Library_Management_System.Controllers
             _context = context;
         }
 
+
+        // ===============================
+        // POST: api/Students
+        // Purpose: Add a new student
+        // ===============================
+        [HttpPost]
+        public async Task<IActionResult> CreateStudent(Student student)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _context.Students.Add(student);
+            await _context.SaveChangesAsync();
+            return Ok(student);
+        }
+
+
         // ===============================
         // GET: api/Students
-        // Purpose: Retrieve all students registered in the library system
+        // GET: api/Students?rollNo=ABC123
+        // Purpose: Retrieve all students or filter by roll number
         // ===============================
         [HttpGet]
-        public IActionResult GetStudents()
+        public async Task<IActionResult> GetStudents([FromQuery] string? rollNo)
         {
-            var students = _context.Students.ToList();
-            return Ok(students);
+            var students = _context.Students.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(rollNo))
+            {
+                students = students.Where(s => s.RollNo == rollNo);
+            }
+
+            return Ok(await students.ToListAsync());
         }
+
 
         // ===============================
         // GET: api/Students/{id}
         // Purpose: Retrieve a specific student by ID
         // ===============================
         [HttpGet("{id}")]
-        public IActionResult GetStudentById(int id)
+        public async Task<IActionResult> GetStudentById(int id)
         {
-            var student = _context.Students.Find(id);
+            var student = await _context.Students.FindAsync(id);
             if (student == null)
                 return NotFound("Student not found");
 
             return Ok(student);
         }
 
-        // ===============================
-        // POST: api/Students
-        // Purpose: Add a new student to the library system
-        // ===============================a
-        [HttpPost]
-        public IActionResult CreateStudent(Student student)
-        {
-            _context.Students.Add(student);
-            _context.SaveChanges();
-            return Ok(student);
-        }
 
         // ===============================
         // PUT: api/Students/{id}
-        // Purpose: Update student details such as name and roll number
+        // Purpose: Update student details
         // ===============================
         [HttpPut("{id}")]
-        public IActionResult UpdateStudent(int id, Student updatedStudent)
+        public async Task<IActionResult> UpdateStudent(int id, Student updatedStudent)
         {
-            var student = _context.Students.Find(id);
+            var student = await _context.Students.FindAsync(id);
             if (student == null)
                 return NotFound("Student not found");
 
             student.Name = updatedStudent.Name;
             student.RollNo = updatedStudent.RollNo;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok(student);
         }
 
+
         // ===============================
         // DELETE: api/Students/{id}
-        // Purpose: Remove a student from the library system
+        // Purpose: Delete a student
         // ===============================
         [HttpDelete("{id}")]
-        public IActionResult DeleteStudent(int id)
+        public async Task<IActionResult> DeleteStudent(int id)
         {
-            var student = _context.Students.Find(id);
+            var student = await _context.Students.FindAsync(id);
             if (student == null)
                 return NotFound("Student not found");
 
             _context.Students.Remove(student);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return Ok("Student deleted successfully");
+            return Ok(new { message = "Student deleted successfully" });
         }
     }
 }
