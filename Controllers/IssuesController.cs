@@ -76,13 +76,14 @@ namespace Library_Management_System.Controllers
         // Get all issues or search by book title
         // ===============================
         [HttpGet]
-        public async Task<IActionResult> GetAllIssues(string? title)
+        public async Task<IActionResult> GetAllIssues([FromQuery] string? title)
         {
             var issues = _context.BookIssues
                 .Include(i => i.Book)
                 .Include(i => i.Student)
                 .AsQueryable();
 
+            // Filter by book title if title is provided
             if (!string.IsNullOrWhiteSpace(title))
             {
                 issues = issues.Where(i =>
@@ -90,17 +91,19 @@ namespace Library_Management_System.Controllers
                 );
             }
 
+            // Project the result
             var result = await issues.Select(i => new
             {
-                i.IssueId,
-                BookTitle = i.Book.Title,
-                StudentName = i.Student.Name,
-                i.IssueDate,
-                i.ReturnDate,
-                i.IsReturned
+                issueId = i.IssueId,
+                bookTitle = i.Book.Title,
+                studentName = i.Student.Name,
+                issueDate = i.IssueDate,
+                returnDate = i.ReturnDate,
+                isReturned = i.IsReturned
             }).ToListAsync();
 
             return Ok(result);
         }
+
     }
 }

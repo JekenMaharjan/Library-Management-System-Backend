@@ -18,7 +18,7 @@ namespace Library_Management_System.Models
 
         public DateTime? ReturnDate { get; set; }
 
-        public bool IsReturned { get; set; }
+        public bool IsReturned { get; set; } = false;
 
         public Book Book { get; set; } = null!;
         public Student Student { get; set; } = null!;
