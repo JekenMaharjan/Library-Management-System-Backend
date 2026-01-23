@@ -17,41 +17,17 @@ namespace Library_Management_System.Controllers
         }
 
         // ===============================
-        // GET: api/Issues
-        // Purpose: Retrieve all issued books with related book and student details
-        // ===============================
-        [HttpGet]
-        public IActionResult GetAllIssues()
-        {
-            var issues = _context.BookIssues
-        .Include(i => i.Book)
-        .Include(i => i.Student)
-        .Select(i => new
-        {
-            i.IssueId,
-            BookTitle = i.Book.Title,
-            StudentName = i.Student.Name,
-            i.IssueDate,
-            i.ReturnDate,
-            i.IsReturned
-        })
-        .ToList();
-
-            return Ok(issues);
-        }
-
-        // ===============================
         // POST: api/Issues/issue
-        // Purpose: Issue a book to a student if stock is available
+        // Issue a book to a student
         // ===============================
         [HttpPost("issue")]
-        public IActionResult IssueBook(int bookId, int studentId)
+        public async Task<IActionResult> IssueBook(int bookId, int studentId)
         {
-            var book = _context.Books.Find(bookId);
+            var book = await _context.Books.FindAsync(bookId);
+
             if (book == null || book.TotalStock <= 0)
                 return BadRequest("Book not available");
 
-            // Reduce stock when book is issued
             book.TotalStock--;
 
             var issue = new BookIssue
@@ -63,38 +39,68 @@ namespace Library_Management_System.Controllers
             };
 
             _context.BookIssues.Add(issue);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok("Book issued successfully");
         }
 
         // ===============================
         // POST: api/Issues/return
-        // Purpose: Return an issued book and update stock
+        // Return a book
         // ===============================
         [HttpPost("return")]
-        public IActionResult ReturnBook(int issueId)
+        public async Task<IActionResult> ReturnBook(int issueId)
         {
-            var issue = _context.BookIssues.Find(issueId);
+            var issue = await _context.BookIssues.FindAsync(issueId);
+
             if (issue == null || issue.IsReturned)
                 return BadRequest("Invalid request");
 
-            // Mark book as returned
             issue.IsReturned = true;
             issue.ReturnDate = DateTime.Now;
 
-            // Increase stock after return
-            var book = _context.Books.Find(issue.BookId);
+            var book = await _context.Books.FindAsync(issue.BookId);
 
             if (book == null)
-            {
                 return BadRequest("Associated book not found");
-            }
+
             book.TotalStock++;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok("Book returned successfully");
         }
 
+        // ===============================
+        // GET: api/Issues
+        // GET: api/Issues?title=xyz
+        // Get all issues or search by book title
+        // ===============================
+        [HttpGet]
+        public async Task<IActionResult> GetAllIssues(string? title)
+        {
+            var issues = _context.BookIssues
+                .Include(i => i.Book)
+                .Include(i => i.Student)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                issues = issues.Where(i =>
+                    EF.Functions.Like(i.Book.Title, $"%{title}%")
+                );
+            }
+
+            var result = await issues.Select(i => new
+            {
+                i.IssueId,
+                BookTitle = i.Book.Title,
+                StudentName = i.Student.Name,
+                i.IssueDate,
+                i.ReturnDate,
+                i.IsReturned
+            }).ToListAsync();
+
+            return Ok(result);
+        }
     }
 }

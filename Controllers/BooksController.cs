@@ -1,6 +1,7 @@
 ﻿using Library_Management_System.Data;
 using Library_Management_System.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Library_Management_System.Controllers
 {
@@ -16,66 +17,72 @@ namespace Library_Management_System.Controllers
         }
 
         // ===============================
-        // GET: api/Books
-        // Purpose: Retrieve all books available in the library
-        // ===============================
-        [HttpGet]
-        public IActionResult GetBooks()
-        {
-            return Ok(_context.Books.ToList());
-        }
-
-        // ===============================
         // POST: api/Books
-        // Purpose: Add a new book to the library inventory
+        // Add a new book
         // ===============================
         [HttpPost]
-        public IActionResult AddBook(Book book)
+        public async Task<IActionResult> AddBook(Book book)
         {
-            _context.Books.Add(book);
-            _context.SaveChanges();
+            await _context.Books.AddAsync(book);
+            await _context.SaveChangesAsync();
+
             return Ok(book);
         }
 
         // ===============================
-        // PUT: api/Books/{id}
-        // Purpose: Update book details such as title, author, and stock
+        // GET: api/Books
+        // GET: api/Books?title=xyz
+        // Get all books or search by title
         // ===============================
-        [HttpPut("{id}")]
-        public IActionResult UpdateBook(int id, Book updatedBook)
+        [HttpGet]
+        public async Task<IActionResult> GetBooks(string? title)
         {
-            var book = _context.Books.Find(id);
+            var books = _context.Books.AsQueryable();
 
-            if (book == null)
+            if (!string.IsNullOrWhiteSpace(title))
             {
-                return NotFound("Book not found");
+                books = books.Where(b =>
+                    EF.Functions.Like(b.Title, $"%{title}%")
+                );
             }
 
-            // Update fields (explicit & safe)
+            return Ok(await books.ToListAsync());
+        }
+
+        // ===============================
+        // PUT: api/Books/{id}
+        // Update book details
+        // ===============================
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBook(int id, Book updatedBook)
+        {
+            var book = await _context.Books.FindAsync(id);
+
+            if (book == null)
+                return NotFound("Book not found");
+
             book.Title = updatedBook.Title;
             book.Author = updatedBook.Author;
             book.TotalStock = updatedBook.TotalStock;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok(book);
         }
 
         // ===============================
         // DELETE: api/Books/{id}
-        // Purpose: Remove a book from the library system
+        // Delete a book
         // ===============================
         [HttpDelete("{id}")]
-        public IActionResult DeleteBook(int id)
+        public async Task<IActionResult> DeleteBook(int id)
         {
-            var book = _context.Books.Find(id);
+            var book = await _context.Books.FindAsync(id);
 
             if (book == null)
-            {
                 return NotFound("Book not found");
-            }
 
             _context.Books.Remove(book);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok("Book deleted successfully");
         }
