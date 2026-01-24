@@ -103,5 +103,17 @@ namespace Library_Management_System.Controllers
 
             return Ok(new { message = "Student deleted successfully" });
         }
+
+
+        // ===============================
+        // GET: api/Students/total
+        // Purpose: Get total number of students
+        // ===============================
+        [HttpGet("total")]
+        public async Task<IActionResult> GetTotalStudents()
+        {
+            var totalStudents = await _context.Students.CountAsync();
+            return Ok(new { totalStudents });
+        }
     }
 }

@@ -25,8 +25,8 @@ namespace Library_Management_System.Controllers
         {
             var book = await _context.Books.FindAsync(bookId);
 
-            if (book == null || book.TotalStock <= 0)
-                return BadRequest("Book not available");
+            if (book == null) return BadRequest("Book not found");
+            if (book.TotalStock <= 0) return BadRequest("Book out of stock");
 
             book.TotalStock--;
 
@@ -105,5 +105,30 @@ namespace Library_Management_System.Controllers
             return Ok(result);
         }
 
+        // ===============================
+        // DELETE: api/Issues/{id}
+        // Delete an issued book record
+        // ===============================
+        [HttpDelete("return")]
+        public async Task<IActionResult> DeleteIssuedBook(int issueId)
+        {
+            var issuedBook = await _context.BookIssues.FindAsync(issueId);
+
+            if (issuedBook == null)
+                return NotFound("Issued book not found");
+
+            _context.BookIssues.Remove(issuedBook);
+
+            if (!issuedBook.IsReturned)
+            {
+                var book = await _context.Books.FindAsync(issuedBook.BookId);
+                if (book != null)
+                    book.TotalStock++;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Issued book deleted successfully");
+        }
     }
 }
