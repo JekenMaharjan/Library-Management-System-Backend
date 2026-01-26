@@ -97,6 +97,7 @@ namespace Library_Management_System.Controllers
                 issueId = i.IssueId,
                 bookTitle = i.Book.Title,
                 studentName = i.Student.Name,
+                studentRollNo = i.Student.RollNo,
                 issueDate = i.IssueDate,
                 returnDate = i.ReturnDate,
                 isReturned = i.IsReturned

@@ -12,7 +12,7 @@ namespace Library_Management_System.Models
         public int BookId { get; set; }
 
         [ForeignKey("Student")]
-        public int StudentId { get; set; }
+        public int StudentId { get; set; 
 
         public DateTime IssueDate { get; set; }
 

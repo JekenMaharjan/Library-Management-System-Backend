@@ -46,7 +46,9 @@ namespace Library_Management_System.Controllers
 
             if (!string.IsNullOrWhiteSpace(rollNo))
             {
-                students = students.Where(s => s.RollNo == rollNo);
+                students = students.Where(s =>
+                EF.Functions.Like(s.RollNo, $"%{rollNo}%")
+                );
             }
 
             return Ok(await students.ToListAsync());
